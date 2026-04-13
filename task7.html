@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Feedback Form</title>
+<link rel="stylesheet" href="task7style.css">
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>Feedback Form</h2>
+
+<form>
+
+<label>Name</label>
+<input type="text" id="name"
+onkeypress="validateName(event)"
+onmouseover="highlight(this)"
+onmouseout="removeHighlight(this)">
+
+<label>Email</label>
+<input type="text" id="email"
+onkeypress="validateEmail(event)"
+onmouseover="highlight(this)"
+onmouseout="removeHighlight(this)">
+
+<label>Message</label>
+<textarea id="message"
+onmouseover="highlight(this)"
+onmouseout="removeHighlight(this)"></textarea>
+
+<button type="button" ondblclick="submitForm()">Submit Feedback</button>
+
+</form>
+
+</div>
+
+<script src="script.js"></script>
+
+</body>
+</html>

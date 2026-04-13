@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Management System</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f5f5f5; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        h1, h2 { color: #333; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th { background-color: #f2f2f2; font-weight: bold; }
+        tr:nth-child(even) { background-color: #f9f9f9; }
+        .summary { background-color: #e8f4fd; padding: 15px; margin: 20px 0; border-radius: 5px; border-left: 4px solid #2196F3; }
+        .summary h3 { margin-top: 0; color: #2196F3; }
+        .error { color: red; }
+        button { background-color: #4CAF50; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; margin: 5px; }
+        button:hover { background-color: #45a049; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Order Management System</h1>
+        
+        <div class="summary">
+            <h3>Highest Value Order</h3>
+            <div id="highestOrder">Loading...</div>
+        </div>
+        
+        <div class="summary">
+            <h3>Most Active Customer</h3>
+            <div id="mostActiveCustomer">Loading...</div>
+        </div>
+        
+        <h2>Customer Order History</h2>
+        <button onclick="loadOrderHistory()">Refresh Order History</button>
+        <table id="orderHistoryTable">
+            <thead>
+                <tr>
+                    <th>Customer Name</th>
+                    <th>Email</th>
+                    <th>Product</th>
+                    <th>Quantity</th>
+                    <th>Order Date</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody id="orderHistoryBody">
+                <tr>
+                    <td colspan="6">Loading order history...</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        // Load order history
+        async function loadOrderHistory() {
+            try {
+                const response = await fetch('/api/order-history');
+                const data = await response.json();
+                
+                const tbody = document.getElementById('orderHistoryBody');
+                tbody.innerHTML = '';
+                
+                if (data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6">No orders found.</td></tr>';
+                    return;
+                }
+                
+                data.forEach(order => {
+                    const row = `<tr>
+                        <td>${order.customer_name}</td>
+                        <td>${order.email}</td>
+                        <td>${order.product_name}</td>
+                        <td>${order.quantity}</td>
+                        <td>${order.order_date}</td>
+                        <td>$${order.total.toFixed(2)}</td>
+                    </tr>`;
+                    tbody.innerHTML += row;
+                });
+            } catch (error) {
+                console.error('Error loading order history:', error);
+                document.getElementById('orderHistoryBody').innerHTML = 
+                    '<tr><td colspan="6" class="error">Error loading order history.</td></tr>';
+            }
+        }
+
+        // Load highest order
+        async function loadHighestOrder() {
+            try {
+                const response = await fetch('/api/highest-order');
+                const data = await response.json();
+                
+                const div = document.getElementById('highestOrder');
+                if (data) {
+                    div.innerHTML = `
+                        <p><strong>Customer:</strong> ${data.customer_name}</p>
+                        <p><strong>Product:</strong> ${data.product_name}</p>
+                        <p><strong>Quantity:</strong> ${data.quantity}</p>
+                        <p><strong>Date:</strong> ${data.order_date}</p>
+                        <p><strong>Total:</strong> $${data.total.toFixed(2)}</p>
+                    `;
+                } else {
+                    div.innerHTML = 'No orders found.';
+                }
+            } catch (error) {
+                console.error('Error loading highest order:', error);
+                document.getElementById('highestOrder').innerHTML = 'Error loading data.';
+            }
+        }
+
+        // Load most active customer
+        async function loadMostActiveCustomer() {
+            try {
+                const response = await fetch('/api/most-active-customer');
+                const data = await response.json();
+                
+                const div = document.getElementById('mostActiveCustomer');
+                if (data) {
+                    div.innerHTML = `
+                        <p><strong>Name:</strong> ${data.name}</p>
+                        <p><strong>Email:</strong> ${data.email}</p>
+                        <p><strong>Total Orders:</strong> ${data.order_count}</p>
+                    `;
+                } else {
+                    div.innerHTML = 'No customers found.';
+                }
+            } catch (error) {
+                console.error('Error loading most active customer:', error);
+                document.getElementById('mostActiveCustomer').innerHTML = 'Error loading data.';
+            }
+        }
+
+        // Load all data on page load
+        window.onload = function() {
+            loadOrderHistory();
+            loadHighestOrder();
+            loadMostActiveCustomer();
+        };
+    </script>
+</body>
+</html>
